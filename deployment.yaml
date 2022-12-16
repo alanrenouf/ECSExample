@@ -1,8 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hello-keswick
+  labels:
+    app: metallb
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: nginx-helloworld-deployment
+  namespace: hello-keswick
 spec:
   selector:
     matchLabels:
@@ -23,6 +30,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ngnix-service
+  namespace: hello-keswick
 spec:
   selector:
     app: nginx-hello-keswick
