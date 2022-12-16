@@ -18,3 +18,16 @@ spec:
         image: alanrenouf/docker-nginx-hello-keswick
         ports:
         - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ngnix-service
+spec:
+  selector:
+    app: nginx-hello-keswick
+  type: NodePort
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
