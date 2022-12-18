@@ -34,7 +34,7 @@ metadata:
 spec:
   selector:
     app: nginx-hello-keswick
-  type: NodePort
+  type: LoadBalancer
   ports:
   - protocol: TCP
     port: 80
