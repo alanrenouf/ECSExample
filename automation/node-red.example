@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: node-red
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: node-red
+  name: node-red
+  namespace: node-red
+spec:
+  ports:
+    - name: "1880"
+      port: 1880
+      protocol: TCP
+      targetPort: 1880
+  selector:
+    app: node-red
+  sessionAffinity: None
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: node-red
+  name: node-red
+  namespace: node-red
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-red
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: node-red
+    spec:
+      containers:
+        - image: adamhancock/node-red
+          imagePullPolicy: Always
+          name: node-red
+          ports:
+            - containerPort: 1880
+              protocol: TCP
+          resources: {}
+          env:
+            - name: TZ
+              value: Europe/London
+            - name: PGID
+              value: "1000"
+            - name: PUID
+              value: "1000"
