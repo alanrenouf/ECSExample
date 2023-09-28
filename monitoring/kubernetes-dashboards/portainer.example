@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: portainer
+---
+# Source: portainer/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: portainer-sa-clusteradmin
+  namespace: portainer
+  labels:
+    app.kubernetes.io/name: portainer
+    app.kubernetes.io/instance: portainer
+    app.kubernetes.io/version: "ce-latest-ee-2.19.1"
+---
+# Source: portainer/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: portainer
+  labels:
+    app.kubernetes.io/name: portainer
+    app.kubernetes.io/instance: portainer
+    app.kubernetes.io/version: "ce-latest-ee-2.19.1"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  namespace: portainer
+  name: portainer-sa-clusteradmin
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: portainer
+  namespace: portainer
+  labels:
+    io.portainer.kubernetes.application.stack: portainer
+    app.kubernetes.io/name: portainer
+    app.kubernetes.io/instance: portainer
+    app.kubernetes.io/version: "ce-latest-ee-2.19.1"
+spec:
+  type: LoadBalancer
+  selector:
+    app: app-portainer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
+    - name: edge
+      protocol: TCP
+      port: 8000
+      targetPort: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portainer
+  namespace: portainer
+  labels:
+    io.portainer.kubernetes.application.stack: portainer    
+spec:
+  selector:
+    matchLabels:
+      app: app-portainer
+  template:
+    metadata:
+      labels:
+        app: app-portainer
+    spec:
+      serviceAccountName: portainer-sa-clusteradmin
+      containers:
+      - name: portainer
+        image: "portainer/portainer-ee:2.19.1"
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 9000
+          protocol: TCP
+        - containerPort: 8000
+          protocol: TCP
