@@ -59,8 +59,6 @@ metadata:
     k8s-app: kubernetes-dashboard
   name: kubernetes-dashboard
   namespace: kubernetes-dashboard
-  annotations:
-    metallb.universe.tf/loadBalancerIPs: 192.168.4.245
 spec:
   ports:
     - port: 80
