@@ -1,0 +1,38 @@
+#example deployment and post customsiation for Photon VM
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachine
+metadata:
+  name: photon-vm
+  namespace: default
+  annotations:
+    vmoperator.vmware.com/image-supported-check: disable
+spec:
+  className: guaranteed-small
+  imageName: packages.vmware.com/photon/4.0/GA/ova/photon-hw11-4.0-1526e30ba0.ova
+  powerState: poweredOn
+  networkInterfaces:
+  - networkName: "VM Network"
+    ethernetCardType: "vmxnet3"
+  vmMetadata:
+    configMapName: user-data-photon
+    transport: CloudInit
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: user-data-photon
+    namespace: default
+data:
+  user-data: |
+    #cloud-config
+    ssh_pwauth: true
+    users:
+      - name: root
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        lock_passwd: false
+        passwd: '$6$rounds=4096$g4hhnNzlgGol6ghX$E.Qu.vzMA.qzufAhwI84THkFSTjGCTognWAiSt8uioMKjKDUF1wPtIAiKaSyIaT/JuunlWk8pDetIgYLT81Nr0'
+        shell: /bin/bash
+    write_files:
+      - content: |
+          Keswick VM service says Hello World
+        path: /helloworld

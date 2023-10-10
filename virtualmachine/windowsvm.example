@@ -1,0 +1,16 @@
+#Example of pre-built Windows VM built in fusion and deployed to the Edge
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachine
+metadata:
+  name: win10vm
+  namespace: default
+  annotations:
+    vmoperator.vmware.com/image-supported-check: disable
+spec:
+  className: best-effort-xsmall
+  #http or https location of OVA without the prefix:
+  imageName: 192.168.6.52:9000/win10vm.ova
+  powerState: poweredOn
+  networkInterfaces:
+  - networkName: "VM Network"
+    ethernetCardType: "vmxnet3"
