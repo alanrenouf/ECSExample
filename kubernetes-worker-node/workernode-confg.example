@@ -1,0 +1,33 @@
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachineClass
+metadata:
+  name: best-effort-keswick-small
+  # No resource requests/reservations.
+  # Memory overcommit possible.
+spec:
+  # VM operator controller name for VirtualMachine class
+  # is different so addition of controllerName attr with invalid
+  # value makes vm operator ignore this VM CRD instance.
+  # This is majorly done because vm operator doesn't have all the
+  # needed capabilities to deploy keswick worker vm.
+  controllerName: vmoperator.vmware.com/keswickworker
+  hardware:
+    cpus: 4
+    memory: 8Gi
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: keswick-system
+---
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachine
+metadata:
+  name: keswick-worker
+  namespace: keswick-system
+spec:
+  className: best-effort-keswick-small
+  imageName: keswick-wrkr.ova
+  powerState: poweredOff
+  vmMetadata:
+    transport: CloudInit
