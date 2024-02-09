@@ -1,0 +1,102 @@
+#Example host configuration adding a new vSwitch and portgroup and assigning them to vmnic1
+apiVersion: esx.vmware.com/v1alpha1
+kind: HostConfiguration
+metadata:
+  name: vswitch-config
+  namespace: esx-system
+spec:
+  layertype: Incremental
+  profile: |
+    {
+        "esx": {
+            "network_vss": {
+                "switches": [
+                    {
+                        "name": "vSwitch0",
+                        "bridge": {
+                            "link_discovery_protocol": {
+                                "protocol": "CDP",
+                                "operation": "LISTEN"
+                            },
+                            "nics": ["vmnic0"]
+                        },
+                        "port_groups": [
+                            {
+                                "name": "Management Network",
+                                "vlan_id": 0,
+                                "policy": {
+                                    "nic_teaming": {
+                                        "policy": "LOADBALANCE_SRCID",
+                                        "notify_switches": true,
+                                        "rolling_order": false,
+                                        "link_criteria_beacon": "IGNORE",
+                                        "active_nics": ["vmnic0"],
+                                        "standby_nics": []
+                                    }
+                                }
+                            },
+                            {
+                                "name": "VM Network",
+                                "vlan_id": 0
+                            }
+                        ],
+                        "policy": {
+                            "nic_teaming": {
+                                "policy": "LOADBALANCE_SRCID",
+                                "notify_switches": true,
+                                "rolling_order": false,
+                                "link_criteria_beacon": "IGNORE",
+                                "active_nics": ["vmnic0"],
+                                "standby_nics": []
+                            },
+                            "security": {
+                                "allow_promiscuous": false,
+                                "mac_changes": false,
+                                "forged_transmits": false
+                            }
+                        }
+                    },
+                    {
+                        "name": "vSwitch1",
+                        "policy": {
+                            "nic_teaming": {
+                                "policy": "LOADBALANCE_SRCID",
+                                "notify_switches": true,
+                                "rolling_order": false,
+                                "link_criteria_beacon": "IGNORE",
+                                "active_nics": [
+                                    "vmnic1"
+                                ],
+                                "standby_nics": []
+                            },
+                            "security": {
+                                "allow_promiscuous": false,
+                                "mac_changes": false,
+                                "forged_transmits": false
+                            },
+                            "traffic_shaping": {
+                                "enabled": false
+                            }
+                        },
+                        "bridge": {
+                            "link_discovery_protocol": {
+                                "protocol": "CDP",
+                                "operation": "LISTEN"
+                            },
+                            "nics": [
+                                "vmnic1"
+                            ]
+                        },
+                        "num_ports": 1024,
+                        "mtu": 1500,
+                        "port_groups": [
+                            {
+                                "name": "VM Network 16",
+                                "vlan_id": 0
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
