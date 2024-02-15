@@ -1,0 +1,23 @@
+# Configure NFS Mount
+apiVersion: esx.vmware.com/v1alpha1
+kind: HostConfiguration
+metadata:
+  name: nfs-config
+  namespace: esx-system
+spec:
+  layertype: Incremental
+  profile: |
+    {
+      "esx": {
+        "storage": {
+          "nfs_v3_datastores": [{
+              "volume_name": "NFS",
+              "hostname": "192.168.208.45",
+              "remote_share": "/data/NFS",
+              "connections": 1,
+              "read_only": false
+              }
+            ]
+          }
+       }
+    }
