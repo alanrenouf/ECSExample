@@ -1,0 +1,117 @@
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachine
+metadata:
+  name: windows-server-2012
+  namespace: default
+  annotations:
+    vmoperator.vmware.com/image-supported-check: disable
+    #vmoperator.vmware.com/cloudinit-type: cloudinitprep
+spec:
+  className: small
+  imageName: 10.237.237.5:8000/win-2012.ova
+  powerState: poweredOn
+  storageClass: default-vm-sc
+  vmMetadata:
+    secretName: sysprep-bootstrap-data
+    transport: Sysprep
+  networkInterfaces:
+  - networkName: "VM Network"
+    ethernetCardType: "vmxnet3"
+  - networkName: "VM Network"
+    ethernetCardType: "e1000"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sysprep-bootstrap-data
+  namespace: default
+stringData:
+  unattend: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <unattend xmlns="urn:schemas-microsoft-com:unattend">
+    <settings pass="specialize">
+      <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <RunSynchronous>
+          <RunSynchronousCommand wcm:action="add">
+            <Path>C:\sysprep\guestcustutil.exe restoreMountedDevices</Path>
+            <Order>1</Order>
+          </RunSynchronousCommand>
+          <RunSynchronousCommand wcm:action="add">
+            <Path>C:\sysprep\guestcustutil.exe flagComplete</Path>
+            <Order>2</Order>
+          </RunSynchronousCommand>
+          <RunSynchronousCommand wcm:action="add">
+            <Path>C:\sysprep\guestcustutil.exe deleteContainingFolder</Path>
+            <Order>3</Order>
+          </RunSynchronousCommand>
+        </RunSynchronous>
+      </component>
+      <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <FirstLogonCommands>
+          <SynchronousCommand wcm:action="add">
+            <CommandLine>netsh advfirewall firewall set rule group="remote desktop" new enable=Yes</CommandLine>
+            <Description>Enable RDP</Description>
+            <Order>1</Order>
+            <RequiresUserInput>false</RequiresUserInput>
+          </SynchronousCommand>
+        </FirstLogonCommands>
+      </component>
+      <component name="Microsoft-Windows-International-Core" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <InputLocale>en-US</InputLocale>
+        <SystemLocale>en-US</SystemLocale>
+        <UILanguage>en-US</UILanguage>
+        <UILanguageFallback>en-US</UILanguageFallback>
+        <UserLocale>en-US</UserLocale>
+      </component>
+    </settings>
+    <settings pass="oobeSystem">
+      <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <UserAccounts>
+          <AdministratorPassword>
+            <Value>c@ttlen0tpet</Value>
+            <PlainText>true</PlainText>
+          </AdministratorPassword>
+          <LocalAccounts>
+            <LocalAccount wcm:action="add">
+              <Name>sample_user</Name>
+              <Password>
+                <Value>VMware!90</Value>
+                <PlainText>true</PlainText>
+              </Password>
+              <Group>Administrators</Group>
+              <DisplayName>SampleUser</DisplayName>
+              <Description>Local administrator account</Description>
+            </LocalAccount>
+          </LocalAccounts>
+        </UserAccounts>
+        <FirstLogonCommands>
+          <SynchronousCommand wcm:action="add">
+            <CommandLine>cmd.exe /c echo VECO VM Service says hello! > "%USERPROFILE%\Documents\hello.txt"</CommandLine>
+            <Description>Create Hello World text file</Description>
+            <Order>1</Order>
+            <RequiresUserInput>false</RequiresUserInput>
+          </SynchronousCommand>
+        </FirstLogonCommands>
+        <AutoLogon>
+          <Password>
+            <Value>VMware!90</Value>
+            <PlainText>true</PlainText>
+          </Password>
+          <Enabled>true</Enabled>
+          <LogonCount>1</LogonCount>
+          <Username>sample_user</Username>
+        </AutoLogon>
+        <OOBE>
+          <SkipMachineOOBE>true</SkipMachineOOBE>
+          <SkipUserOOBE>true</SkipUserOOBE>
+          <HideEULAPage>true</HideEULAPage>
+          <HideLocalAccountScreen>true</HideLocalAccountScreen>
+          <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+          <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+          <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+          <ProtectYourPC>3</ProtectYourPC>
+        </OOBE>
+        <TimeZone>Central Standard Time</TimeZone>
+      </component>
+    </settings>
+    </unattend>
