@@ -7,10 +7,9 @@ metadata:
     vmoperator.vmware.com/image-supported-check: disable
     #vmoperator.vmware.com/cloudinit-type: cloudinitprep
 spec:
-  className: small
+  className: best-effort-small
   imageName: 10.237.237.5:8000/win-2012.ova
   powerState: poweredOn
-  storageClass: default-vm-sc
   vmMetadata:
     secretName: sysprep-bootstrap-data
     transport: Sysprep
