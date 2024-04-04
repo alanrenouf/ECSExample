@@ -1,0 +1,21 @@
+#Example showing how to enable USB NIC Scan on boot
+apiVersion: esx.vmware.com/v1alpha1
+kind: HostConfiguration
+metadata:
+  name: usb-nic-scan-on-boot
+  namespace: esx-system
+spec:
+  layertype: Incremental
+  profile: |
+    {
+      "esx": {
+          "vmkernel": {
+            "module_settings": [
+              {
+                "module_name": "vmkusb_nic_fling",
+                "options": "usbBusFullScanOnBootEnabled=1"
+              }
+            ]
+          }
+      }
+    }

@@ -1,0 +1,30 @@
+#Confgure NTP Servers
+apiVersion: esx.vmware.com/v1alpha1
+kind: HostConfiguration
+metadata:
+  name: ntp-sync
+  namespace: esx-system
+spec:
+  layertype: Incremental
+  profile: |
+    {
+      "esx": {
+        "system": {
+          "system_time": {
+            "enabled": true,
+            "protocol": "NTP",
+            "ntp_config": {
+              "server": [{
+                  "hostname": "0.pool.ntp.org",
+                  "command": "SERVER"
+                },
+                {
+                  "hostname": "1.pool.ntp.org",
+                  "command": "SERVER"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }

@@ -1,0 +1,18 @@
+#Example showing how to change the DCUI Welcome message
+apiVersion: esx.vmware.com/v1alpha1
+kind: HostConfiguration
+metadata:
+  name: welcome-message
+  namespace: esx-system
+spec:
+  layertype: Incremental
+  profile: |
+    {
+      "esx": {
+          "system": {
+            "welcome_message": {
+                "message": "{align:left}{color:white} \n\n\n\n\tVMware Edge Cloud Orchestrator - Edge Host{/color}{/align}\n\n\n\n\n\n\n\n\n{align:left}{color:yellow} \tTo manage this host, go to: \n\thttps://{ip}/ (DHCP)\n\thttps://[fe80::8aae:ddff:fe0c:b382]/ (STATIC){/color}{/align}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n{align:left}{color:yellow} <F2> Customize System/View Logs{/color}{/align}{align:right}{color:yellow} <F12> Shut Down/Restart{/color}{/align}"
+            }
+          }
+      }
+    }

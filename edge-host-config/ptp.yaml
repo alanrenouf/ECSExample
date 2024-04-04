@@ -1,0 +1,98 @@
+#Example Setup of PTP vSwitch/VMKernel/PG And Enabling PTP
+apiVersion: esx.vmware.com/v1alpha1
+kind: HostConfiguration
+metadata:
+  name: ntp-sync
+  namespace: esx-system
+spec:
+  layertype: Incremental
+  profile: |
+    {
+        "profile": {
+            "esx": {
+                "network_vss": {
+                    "switches": [
+                        {
+                            "name": "PTP-Switch",
+                            "policy": {
+                                "nic_teaming": {
+                                    "policy": "LOADBALANCE_SRCID",
+                                    "notify_switches": true,
+                                    "rolling_order": false,
+                                    "link_criteria_beacon": "IGNORE",
+                                    "active_nics": [
+                                        "vmnic1"
+                                    ],
+                                    "standby_nics": []
+                                },
+                                "security": {
+                                    "allow_promiscuous": false,
+                                    "mac_changes": false,
+                                    "forged_transmits": false
+                                },
+                                "traffic_shaping": {
+                                    "enabled": false
+                                }
+                            },
+                            "bridge": {
+                                "link_discovery_protocol": {
+                                    "protocol": "CDP",
+                                    "operation": "LISTEN"
+                                },
+                                "nics": [
+                                    "vmnic1"
+                                ]
+                            },
+                            "num_ports": 1024,
+                            "mtu": 1500,
+                            "port_groups": [
+                                {
+                                    "name": "PTP-PG",
+                                    "vlan_id": 0
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "network": {
+                    "vmknics": [
+                        {
+                            "device": "vmk1",
+                            "ip": {
+                                "dhcp": true,
+                                "dhcp_dns": false,
+                                "ipv6": {
+                                    "dhcp": false,
+                                    "auto_configuration_enabled": false,
+                                    "dhcp_dns": false
+                                },
+                                "ipv6_enabled": true
+                            },
+                            "net_stack_instance_key": "defaultTcpipStack",
+                            "port_connection_type": "VSS_PORT_GROUP",
+                            "port_group": "PTP-PG",
+                            "mac_mode": "AUTO_GENERATED",
+                            "mtu": 1500,
+                            "enabled": true,
+                            "enabled_services": {
+                                "management": true,
+                                "precision_time_protocol": true
+                            }
+                        }
+                    ],
+                    "net_stacks": [
+                        {
+                            "key": "defaultTcpipStack",
+                            "name": "defaultTcpipStack"
+                        }
+                    ]
+                },
+                "system": {
+                    "system_time": {
+                        "protocol": "PTP",
+                        "enabled": true
+                    }
+                }
+            }
+        }
+    }

@@ -1,0 +1,32 @@
+#Example creating a read only account on the host for monitoring
+#Password is Base64 Encoded
+apiVersion: esx.vmware.com/v1alpha1
+kind: HostConfiguration
+metadata:
+  name: monitoring-user
+  namespace: esx-system
+spec:
+  layertype: Incremental
+  profile: |
+    {
+      "esx": {
+        "authentication": {
+          "user_accounts": [
+            {
+              "name": "monitor",
+              "password_hash": "$6$vocvaTDqp5Cg.$Q6q7pshtoHi59oeU9O9zJN4FQ4gjtobSvA1RKG1FbSeIhNIdYwrXCcYPMm8NUTb8GtkFSSjstdkQj2IYld2Qx/",
+              "description": "Monitoring user account"
+            }
+          ]
+        },
+        "authorization": {
+          "permissions": [
+            {
+              "principal": "monitor",
+              "is_group": false,
+              "access_mode": "ReadOnly"
+            }
+          ]
+        }
+      }
+    }
