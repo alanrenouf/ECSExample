@@ -1,4 +1,5 @@
 #Example showing how to enable USB NIC Scan on boot
+#Automatically reboots host on apply
 apiVersion: esx.vmware.com/v1alpha1
 kind: HostConfiguration
 metadata:
