@@ -34,5 +34,5 @@ data:
         shell: /bin/bash
     write_files:
       - content: |
-          Keswick VM service says Hello World
+          VECO VM service says Hello World
         path: /helloworld
