@@ -1,0 +1,12 @@
+# apiVersion: esx.vmware.com/v1alpha1
+# kind: HostConfiguration
+# metadata:
+#   name: ecsmonitoring-metrics
+#   namespace: esx-system
+# spec:
+#   metrics-collection:
+#     enabled: true
+#     metrics-sink:
+#       # Edit the below URL to provide the worker node IP address
+#       url: "http://192.168.11.101:30777/api/v1/write"
+#       data-format: "prometheusremotewrite"
