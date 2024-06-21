@@ -1,0 +1,17 @@
+# Example deployment straight from online bitnami catalog, for example:
+# Copy download URL fromhttps://bitnami.com/stack/harbor/virtual-machine and use in following manifest
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachine
+metadata:
+  name: harbor
+  namespace: default
+  annotations:
+    vmoperator.vmware.com/image-supported-check: disable
+spec:
+  className: best-effort-xsmall
+  #http or https location of OVA without the prefix:
+  imageName: bitnami.com/redirect/to/2461930/bitnami-harbor-2.11.0-r0-debian-12-amd64.ova
+  powerState: poweredOn
+  networkInterfaces:
+  - networkName: "VM Network"
+    ethernetCardType: "vmxnet3"
