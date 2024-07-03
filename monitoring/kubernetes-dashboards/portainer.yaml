@@ -12,7 +12,7 @@ metadata:
   labels:
     app.kubernetes.io/name: portainer
     app.kubernetes.io/instance: portainer
-    app.kubernetes.io/version: "ce-latest-ee-2.19.4"
+    app.kubernetes.io/version: "ce-latest-ce-2.20.3"
 ---
 # Source: portainer/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -22,7 +22,7 @@ metadata:
   labels:
     app.kubernetes.io/name: portainer
     app.kubernetes.io/instance: portainer
-    app.kubernetes.io/version: "ce-latest-ee-2.19.4"
+    app.kubernetes.io/version: "ce-latest-ce-2.20.3"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -41,7 +41,7 @@ metadata:
     io.portainer.kubernetes.application.stack: portainer
     app.kubernetes.io/name: portainer
     app.kubernetes.io/instance: portainer
-    app.kubernetes.io/version: "ce-latest-ee-2.19.4"
+    app.kubernetes.io/version: "ce-latest-ce-2.20.3"
 spec:
   type: LoadBalancer
   selector:
@@ -75,7 +75,7 @@ spec:
       serviceAccountName: portainer-sa-clusteradmin
       containers:
       - name: portainer
-        image: "portainer/portainer-ee:2.19.4"
+        image: "portainer/portainer-ce:2.20.3"
         imagePullPolicy: Always
         ports:
         - containerPort: 9000
