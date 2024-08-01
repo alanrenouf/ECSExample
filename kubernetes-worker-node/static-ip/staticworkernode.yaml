@@ -1,0 +1,55 @@
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachineClass
+metadata:
+  name: best-effort-ec-small
+  # No resource requests/reservations.
+  # Memory overcommit possible.
+spec:
+  # VM operator controller name for VirtualMachine class
+  # is different so addition of controllerName attr with invalid
+  # value makes vm operator ignore this VM CRD instance.
+  # This is majorly done because vm operator doesn't have all the
+  # needed capabilities to deploy ec worker vm.
+  controllerName: vmoperator.vmware.com/ecworker
+  hardware:
+    cpus: 2
+    memory: 8Gi
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ec-system
+---
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachine
+metadata:
+  name: ec-worker
+  namespace: ec-system
+spec:
+  className: best-effort-ec-small
+  imageName: ec-wrkr.ova
+  powerState: poweredOff
+  vmMetadata:
+    transport: CloudInit
+    configMapName: worker-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: worker-config
+  namespace: ec-system
+data:
+  networkconfig: |
+        version: 2
+        ethernets:
+            eth0:
+                dhcp: "false"
+                addresses:
+                    - 10.211.34.144/22
+                nameservers:
+                    addresses:
+                        - 10.211.56.141
+                        - 10.211.81.141
+                routes:
+                    - to: 0.0.0.0/0
+                      via: 10.211.32.1 
