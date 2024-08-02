@@ -1,0 +1,26 @@
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachineClass
+metadata:
+  name: small
+spec:
+  configSpec:
+    _typeName: VirtualMachineConfigSpec
+    latencySensitivity:
+      _typeName: LatencySensitivity
+      level: normal
+    flags:
+      _typeName: VirtualMachineFlagInfo
+      vbsEnabled: true
+      virtualMmuUsage: "on"
+      vvtdEnabled: true
+    nestedHVEnabled: true
+    bootOptions:
+      _typeName: VirtualMachineBootOptions
+      efiSecureBootEnabled: true  # required vm hardware version for secure boot >= vmx-13
+  policies:
+      resources:
+        requests:
+          memory: 4Gi   # The memory reservation must equal to the VM memory claim for latency sensitivity.
+  hardware:
+    cpus: 2
+    memory: 4Gi
