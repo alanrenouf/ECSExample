@@ -1,0 +1,19 @@
+# This example shows how to create a Virtual Machine Class that can be used to passthrough a PCIe device
+# Note: The device should already be set as passthrough enabled from the ESX UI or API
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachineClass
+metadata:
+ name: pci-vmclass
+spec:
+ hardware:
+  cpus: 2
+  memory: 4Gi
+  devices:
+   dynamicDirectPathIODevices:
+    - vendorID: 0x14e4
+      deviceID: 0x1751
+ policies:
+  resources:
+   requests:
+    cpu: 2
+    memory: 4Gi
