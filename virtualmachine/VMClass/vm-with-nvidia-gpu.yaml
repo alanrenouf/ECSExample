@@ -1,0 +1,33 @@
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachineClass
+metadata:
+  name: guaranteed-small-gpu
+  namespace: default
+spec:
+  configSpec:
+    _typeName: VirtualMachineConfigSpec
+    memoryReservationLockedToMax: true
+    numCoresPerSocket: 2
+    extraConfig:
+      - _typeName: OptionValue
+        key: "pciPassthru.64bitMMIOSizeGB"
+        value: "64"
+      - _typeName: OptionValue
+        key: "pciPassthru.use64bitMMIO"
+        value: "true"
+  hardware:
+    cpus: 2
+    memory: 8Gi
+    devices:
+      dynamicDirectPathIODevices:
+        # Nvidia A2 GPU
+        - deviceID: 0x25b6
+          vendorID: 0x10de
+  policies:
+    resources:
+      requests:
+        cpu: 2000m
+        memory: 8Gi
+      limits:
+        cpu: 2000m
+        memory: 8Gi
