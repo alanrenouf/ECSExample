@@ -1,0 +1,69 @@
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachine
+metadata:
+  name: linux-vm-gpu
+  namespace: default
+spec:
+  className: guaranteed-small-gpu
+  # OVA must be at least with VHW versio 17 or higher
+  imageName: 172.20.0.200/ubuntu-2204-efi-kube-v1.28.7-gpu.ova
+  networkInterfaces:
+  - ethernetCardType: vmxnet3
+    networkName: VM Network
+  powerState: poweredOn
+  vmMetadata:
+    configMapName: user-data
+    transport: CloudInit
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: user-data
+    namespace: default
+data:
+  user-data: |
+    #cloud-config
+    write_files:
+      - content: |
+          VECO VM service says Hello World
+        path: /helloworld
+      - content: |
+          network: {config: disabled}
+        path: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+        permissions: '0600'
+      - content: |
+          network:
+            version: 2
+            ethernets:
+              ens192:
+                match:
+                  driver: vmxnet3
+                dhcp4: true
+        path: /etc/netplan/90-network-config.yaml
+        permissions: '0600'
+    hostname: ubuntu-server
+    manage_etc_hosts: true
+    users:
+      - name: ubuntu
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        groups: users, admin
+        home: /home/ubuntu
+        shell: /bin/bash
+        lock_passwd: false
+        ssh-authorized-keys:
+          - "ssh-rsa ABAAB3NzaC1yc2EAAAADAQABAAABAQDDJO27b2czBUw3q3niNOi8VROh/yG1tCPP7wEe7dMIh3Ih2ahDj7BnmP6ozafVgTpYjGuGb3Y1uN8M9kUBjBTvPtoubgO0iT3yXrOGepct/sXCpVxVUDyWEcpfIu/u+d2H32w8nJSfnOpvHGb4AtlJvRL6tHiBU1tB1QqwdWpZwKrudF9zXEUsdSGBQ0tBqnOBx/CDySkrOrQSYTKYThgJcs+hQj0ltMoTVbfKW5xjBCRYBCFgpN29fJEudR0V5hXEeXnTsbJT/YkXOp0h1DsXLzWGhy5Zpgx6P3lBP/fcMO69ay2J0jtiR1HjvXahqq6ovbnGVUxXB1NoZJ07dg9j user@example.com"
+    ssh_pwauth: true
+    disable_root: false
+    chpasswd:
+      list: |
+         ubuntu:ubuntu
+      expire: False
+    package_update: true
+    packages:
+      - open-vm-tools
+    runcmd:
+     - rm /etc/netplan/50-cloud-init.yaml
+     - netplan generate
+     - netplan apply
+     - systemctl enable open-vm-tools.service
+     - systemctl start open-vm-tools.service
