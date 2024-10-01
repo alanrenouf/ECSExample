@@ -1,0 +1,143 @@
+# Example Frigate configuration which detects people and cars in Frigate from an rtsp camera feed, change the username, password and IP for your camera.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: frigate
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: frigate-pv
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/tmp/pv"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: frigate-pvc
+  namespace: frigate
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frigate
+  namespace: frigate
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frigate
+  template:
+    metadata:
+      labels:
+        app: frigate
+    spec:
+      containers:
+      - name: frigate
+        image: ghcr.io/blakeblackshear/frigate:stable
+        env:
+        - name: FRIGATE_RTSP_PASSWORD
+          value: 'password'
+        securityContext:
+          privileged: true
+        ports:
+        - containerPort: 5000
+        - containerPort: 1935
+        volumeMounts:
+        - name: writable-config
+          mountPath: /config
+      initContainers:
+      - name: init-config
+        image: busybox
+        command: ['sh', '-c', 'cp /config-data/config.yaml /config/config.yaml']
+        volumeMounts:
+        - name: config
+          mountPath: /config-data
+        - name: writable-config
+          mountPath: /config
+      volumes:
+      - name: config
+        configMap:
+          name: frigate-config
+      - name: writable-config
+        persistentVolumeClaim:
+          claimName: frigate-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frigate-svc
+  namespace: frigate
+spec:
+  selector:
+    app: frigate
+  ports:
+    - port: 5000
+      nodePort: 30778
+  type: NodePort
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frigate-config
+  namespace: frigate
+  labels:
+    app: frigate
+data:
+  config.yaml: |+
+    mqtt:
+      enabled: false
+
+    cameras:
+      TFD-CV:
+        ffmpeg:
+          inputs:
+            - path: rtsp://user:password@192.168.0.199:554/axis-media/media.amp
+              roles:
+                - detect
+                - record
+        detect:
+          width: 1280
+          height: 960
+          fps: 5
+        objects:
+          track:
+            - car
+            - person
+        snapshots:
+          enabled: true
+          timestamp: true
+          bounding_box: true
+          retain:
+            default: 5
+        record:
+          enabled: true
+          retain:
+            days: 1
+          events:
+            retain:
+              default: 5
+        review:
+          alerts:
+            labels:
+              - car
+              - person
+          detections:
+            labels:
+              - car
+              - person
+    version: 0.14
+

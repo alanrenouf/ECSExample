@@ -1,3 +1,4 @@
+# Sample CV App which runs in a browser and uses your local computer camera
 kind: Namespace
 apiVersion: v1
 metadata:
