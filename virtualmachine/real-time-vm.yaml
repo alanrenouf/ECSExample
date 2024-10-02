@@ -1,0 +1,57 @@
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachine
+metadata:
+  name: rt-vm
+  namespace: default
+  annotations:
+    vmoperator.vmware.com/image-supported-check: disable
+spec:
+  className: my-vm-class-3
+  #Provide path to your Virtual Machine OVA
+  imageName: x.x.x.x/RealTime-Workload.ova
+  powerState: poweredOn
+  networkInterfaces:
+    - networkName: "VM Network"
+      ethernetCardType: "vmxnet3"
+
+---
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachineClass
+metadata:
+  name: my-vm-class-3
+spec:
+  hardware:
+    cpus: 4
+    memory: 8Gi
+  policies:
+    resources:
+      requests:
+        cpu: 4
+        memory: 8Gi
+  configSpec:
+    _typeName: VirtualMachineConfigSpec
+    latencySensitivity:
+      _typeName: LatencySensitivity 
+      level: high
+    flags:
+      _typeName: VirtualMachineFlagInfo
+      enableLogging: false
+    extraConfig:
+      - _typeName: OptionValue
+        key: "sched.mem.lpage.enable1GPage"
+        value: "true"
+      - _typeName: OptionValue
+        key: "sched.cpu.affinity.exclusiveNoStats"
+        value: "true" 
+      - _typeName: OptionValue
+        key: "monitor.forceEnableMPTI"
+        value: "true"
+      - _typeName: OptionValue
+        key: "timeTracker.lowLatency"
+        value: "true"
+      - _typeName: OptionValue
+        key: "sched.qos.l3.monitor"
+        value: "true"
+      - _typeName: OptionValue
+        key: "sched.qos.l3.sizeKB"
+        value: "4096"
