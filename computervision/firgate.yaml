@@ -1,4 +1,4 @@
-# Example Frigate configuration which detects people and cars in Frigate from an rtsp camera feed, change the username, password and IP for your camera.
+# Example Frigate configuration which detects people and cars in Frigate from an rtsp camera feed, change the camera feed information with one for your camera.
 apiVersion: v1
 kind: Namespace
 metadata:
